@@ -1,65 +1,32 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Website to record and manage store sales and inventory.",
+  "summary": "Project to include an automatically generated sales history feature shown within the existing dashboard, with ability to retrieve all sales records.",
   "architectural_notes": [],
   "known_issues": [],
   "isFixRequest": false,
-  "imageRequirements": "## Required Images\n- Minimal storefront logo mark, flat vector style, transparent background (store-logo.dim_512x512.png)\n- Soft neutral abstract background pattern, subtle grain, warm gray/beige palette (paper-texture-bg.dim_1920x1080.png)\n- Empty state illustration of shelves/boxes, simple line art, warm monochrome palette (empty-inventory-illustration.dim_1200x800.png)",
   "existing_features": [
     {
-      "id": "feature-create-a-frontend-inventory-management-ui-that-lets-users-add-a-product-edit-product-details-adjust-quantity-on-hand-delete-a-product-and-browse-search-the-product-list",
-      "title": "Create a frontend inventory management UI that lets users: add a product, edit product details, adjust quantity on hand, delete a product, and browse/search the product list.",
+      "id": "feature-update-the-frontend-sales-recording-flow-to-collect-buyer-information-and-submit-it-when-recording-a-sale",
+      "title": "Update the frontend sales recording flow to collect buyer information and submit it when recording a sale.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-the-sales-history-ui-by-replacing-the-placeholder-with-a-working-list-view-using-getallsales-and-a-details-view-using-getsale-showing-date-total-amount-buyer-info-line-items-and-notes",
+      "title": "Implement the Sales History UI by replacing the placeholder with a working list view (using getAllSales) and a details view (using getSale) showing date, total amount, buyer info, line items, and notes.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-show-sales-history-within-the-existing-dashboard-section-by-adding-a-recent-sales-area-that-lists-the-most-recent-sales-and-links-to-the-full-sales-history-page",
+      "title": "Show sales history within the existing Dashboard section by adding a \"Recent Sales\" area that lists the most recent sales and links to the full Sales History page.",
       "reqIds": [
         "REQ-5"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-create-a-frontend-sales-recording-ui-that-lets-users-build-a-sale-by-selecting-products-and-quantities-shows-a-running-total-and-submits-the-sale-to-the-backend",
-      "title": "Create a frontend sales recording UI that lets users build a sale by selecting products and quantities, shows a running total, and submits the sale to the backend.",
-      "reqIds": [
-        "REQ-6"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-create-a-frontend-sales-history-ui-to-view-past-sales-including-a-list-with-date-total-and-a-details-view-showing-line-items-and-notes",
-      "title": "Create a frontend sales history UI to view past sales, including a list with date/total and a details view showing line items and notes.",
-      "reqIds": [
-        "REQ-7"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-simple-dashboard-home-view-summarizing-key-metrics-total-number-of-products-low-stock-products-quantity-at-or-below-a-configurable-threshold-and-total-sales-for-today-based-on-local-day",
-      "title": "Add a simple dashboard/home view summarizing key metrics: total number of products, low-stock products (quantity at or below a configurable threshold), and total sales for today (based on local day).",
-      "reqIds": [
-        "REQ-8"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-use-react-query-for-all-backend-interactions-products-and-sales-including-loading-states-error-states-and-cache-invalidation-after-mutations",
-      "title": "Use React Query for all backend interactions (products and sales), including loading states, error states, and cache invalidation after mutations.",
-      "reqIds": [
-        "REQ-9"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-apply-a-coherent-consistent-visual-theme-for-the-app-ui-colors-typography-spacing-and-component-styling-suitable-for-a-small-retail-back-office-tool-avoiding-blue-purple-as-the-primary-palette",
-      "title": "Apply a coherent, consistent visual theme for the app UI (colors, typography, spacing, and component styling) suitable for a small retail back-office tool, avoiding blue/purple as the primary palette.",
-      "reqIds": [
-        "REQ-10"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-generated-static-image-assets-to-the-frontend-and-use-them-in-the-ui-e-g-app-header-empty-states-by-placing-them-under-frontend-public-assets-generated-and-referencing-them-directly-from-the-frontend",
-      "title": "Add generated static image assets to the frontend and use them in the UI (e.g., app header/empty states) by placing them under frontend/public/assets/generated and referencing them directly from the frontend.",
-      "reqIds": [
-        "REQ-11"
       ],
       "version": 1
     }
@@ -67,45 +34,34 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Create a website to record store sales and track inventory",
+      "summary": "Sales history feature: automatically record sales with fields items sold, amount, buyer info, and date; display within existing dashboard section",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Implement backend data models and CRUD APIs to manage products (inventory items) including: unique product id, name, optional SKU, optional description, unit price, optional unit cost, current quantity on hand, and created/updated timestamps.",
+      "summary": "Add 'Get all sales' capability to retrieve all sales records (e.g., for dashboard listing/reporting)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Extend the backend Sale data to include buyer information and ensure sales are recorded automatically when the existing recordSale function is called, storing: items sold (lineItems), total amount, buyer info, and date/time.",
       "reqIds": [
         "REQ-1"
       ],
       "status": "pending"
     },
     {
-      "id": "AR-3",
-      "summary": "Implement backend APIs to record sales transactions. Each sale must include: unique sale id, timestamp, line items (product id, quantity, unit price at time of sale), optional notes, and computed totals.",
+      "id": "AR-4",
+      "summary": "Add backend query endpoints to retrieve sales history, including an endpoint to get all sales records (\"getAllSales\") and an endpoint to retrieve a single sale by id (\"getSale\").",
       "reqIds": [
         "REQ-2"
       ],
       "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Update inventory quantities when a sale is recorded by decrementing quantity on hand for each sold product, and prevent recording a sale when it would make any product quantity negative.",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Persist products and sales in stable storage in the single Motoko actor so data remains after canister upgrades.",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "status": "pending"
     }
   ],
-  "gameProjectType": "none",
-  "projectName": "Store sales and inventory tracking website",
+  "projectName": "Implement backend sales history retrieval and show sales history on dashboard",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

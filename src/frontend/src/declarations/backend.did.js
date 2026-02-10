@@ -8,6 +8,11 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
+export const UserRole = IDL.Variant({
+  'admin' : IDL.Null,
+  'user' : IDL.Null,
+  'guest' : IDL.Null,
+});
 export const Product = IDL.Record({
   'id' : IDL.Nat,
   'sku' : IDL.Opt(IDL.Text),
@@ -19,18 +24,44 @@ export const Product = IDL.Record({
   'unitPrice' : IDL.Nat,
   'unitCost' : IDL.Opt(IDL.Nat),
 });
-export const DashboardSummary = IDL.Record({
-  'totalProducts' : IDL.Nat,
-  'todaysSalesAmount' : IDL.Nat,
-  'lowStockProducts' : IDL.Vec(Product),
-});
 export const SaleLineItem = IDL.Record({
   'unitPriceAtSale' : IDL.Nat,
   'productId' : IDL.Nat,
   'quantity' : IDL.Nat,
 });
+export const ContactInfo = IDL.Record({
+  'name' : IDL.Text,
+  'email' : IDL.Opt(IDL.Text),
+  'address' : IDL.Opt(IDL.Text),
+  'phone' : IDL.Opt(IDL.Text),
+});
+export const PaymentInfo = IDL.Record({
+  'paymentStatus' : IDL.Text,
+  'paymentMethod' : IDL.Text,
+  'paymentReference' : IDL.Opt(IDL.Text),
+});
+export const BuyerInfo = IDL.Record({
+  'contact' : ContactInfo,
+  'payment' : PaymentInfo,
+});
+export const Sale = IDL.Record({
+  'id' : IDL.Nat,
+  'lineItems' : IDL.Vec(SaleLineItem),
+  'createdBy' : IDL.Text,
+  'totalAmount' : IDL.Nat,
+  'notes' : IDL.Opt(IDL.Text),
+  'timestamp' : IDL.Int,
+  'buyerInfo' : BuyerInfo,
+});
+export const DashboardSummary = IDL.Record({
+  'totalProducts' : IDL.Nat,
+  'todaysSalesAmount' : IDL.Int,
+  'lowStockProducts' : IDL.Vec(Product),
+});
 
 export const idlService = IDL.Service({
+  '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+  'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'createProduct' : IDL.Func(
       [
         IDL.Text,
@@ -43,12 +74,27 @@ export const idlService = IDL.Service({
       [IDL.Nat],
       [],
     ),
+  'deleteSale' : IDL.Func([IDL.Nat], [], []),
   'getAllProducts' : IDL.Func([], [IDL.Vec(Product)], ['query']),
+  'getAllSales' : IDL.Func([], [IDL.Vec(Sale)], ['query']),
+  'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getDashboardSummary' : IDL.Func([], [DashboardSummary], ['query']),
-  'getProduct' : IDL.Func([IDL.Nat], [IDL.Opt(Product)], []),
+  'getLowStockProducts' : IDL.Func([], [IDL.Vec(Product)], ['query']),
+  'getLowStockThreshold' : IDL.Func([], [IDL.Nat], ['query']),
+  'getProduct' : IDL.Func([IDL.Nat], [IDL.Opt(Product)], ['query']),
+  'getProductSales' : IDL.Func([IDL.Nat], [IDL.Vec(Sale)], ['query']),
+  'getSale' : IDL.Func([IDL.Nat], [IDL.Opt(Sale)], ['query']),
+  'getTodaysSales' : IDL.Func([], [IDL.Vec(Sale)], ['query']),
+  'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'recordSale' : IDL.Func(
-      [IDL.Vec(SaleLineItem), IDL.Opt(IDL.Text)],
+      [IDL.Vec(SaleLineItem), IDL.Opt(IDL.Text), BuyerInfo],
       [IDL.Nat],
+      [],
+    ),
+  'setLowStockThreshold' : IDL.Func([IDL.Nat], [], []),
+  'updateSale' : IDL.Func(
+      [IDL.Nat, IDL.Vec(SaleLineItem), IDL.Opt(IDL.Text), BuyerInfo],
+      [],
       [],
     ),
 });
@@ -56,6 +102,11 @@ export const idlService = IDL.Service({
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
+  const UserRole = IDL.Variant({
+    'admin' : IDL.Null,
+    'user' : IDL.Null,
+    'guest' : IDL.Null,
+  });
   const Product = IDL.Record({
     'id' : IDL.Nat,
     'sku' : IDL.Opt(IDL.Text),
@@ -67,18 +118,44 @@ export const idlFactory = ({ IDL }) => {
     'unitPrice' : IDL.Nat,
     'unitCost' : IDL.Opt(IDL.Nat),
   });
-  const DashboardSummary = IDL.Record({
-    'totalProducts' : IDL.Nat,
-    'todaysSalesAmount' : IDL.Nat,
-    'lowStockProducts' : IDL.Vec(Product),
-  });
   const SaleLineItem = IDL.Record({
     'unitPriceAtSale' : IDL.Nat,
     'productId' : IDL.Nat,
     'quantity' : IDL.Nat,
   });
+  const ContactInfo = IDL.Record({
+    'name' : IDL.Text,
+    'email' : IDL.Opt(IDL.Text),
+    'address' : IDL.Opt(IDL.Text),
+    'phone' : IDL.Opt(IDL.Text),
+  });
+  const PaymentInfo = IDL.Record({
+    'paymentStatus' : IDL.Text,
+    'paymentMethod' : IDL.Text,
+    'paymentReference' : IDL.Opt(IDL.Text),
+  });
+  const BuyerInfo = IDL.Record({
+    'contact' : ContactInfo,
+    'payment' : PaymentInfo,
+  });
+  const Sale = IDL.Record({
+    'id' : IDL.Nat,
+    'lineItems' : IDL.Vec(SaleLineItem),
+    'createdBy' : IDL.Text,
+    'totalAmount' : IDL.Nat,
+    'notes' : IDL.Opt(IDL.Text),
+    'timestamp' : IDL.Int,
+    'buyerInfo' : BuyerInfo,
+  });
+  const DashboardSummary = IDL.Record({
+    'totalProducts' : IDL.Nat,
+    'todaysSalesAmount' : IDL.Int,
+    'lowStockProducts' : IDL.Vec(Product),
+  });
   
   return IDL.Service({
+    '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+    'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'createProduct' : IDL.Func(
         [
           IDL.Text,
@@ -91,12 +168,27 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Nat],
         [],
       ),
+    'deleteSale' : IDL.Func([IDL.Nat], [], []),
     'getAllProducts' : IDL.Func([], [IDL.Vec(Product)], ['query']),
+    'getAllSales' : IDL.Func([], [IDL.Vec(Sale)], ['query']),
+    'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getDashboardSummary' : IDL.Func([], [DashboardSummary], ['query']),
-    'getProduct' : IDL.Func([IDL.Nat], [IDL.Opt(Product)], []),
+    'getLowStockProducts' : IDL.Func([], [IDL.Vec(Product)], ['query']),
+    'getLowStockThreshold' : IDL.Func([], [IDL.Nat], ['query']),
+    'getProduct' : IDL.Func([IDL.Nat], [IDL.Opt(Product)], ['query']),
+    'getProductSales' : IDL.Func([IDL.Nat], [IDL.Vec(Sale)], ['query']),
+    'getSale' : IDL.Func([IDL.Nat], [IDL.Opt(Sale)], ['query']),
+    'getTodaysSales' : IDL.Func([], [IDL.Vec(Sale)], ['query']),
+    'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'recordSale' : IDL.Func(
-        [IDL.Vec(SaleLineItem), IDL.Opt(IDL.Text)],
+        [IDL.Vec(SaleLineItem), IDL.Opt(IDL.Text), BuyerInfo],
         [IDL.Nat],
+        [],
+      ),
+    'setLowStockThreshold' : IDL.Func([IDL.Nat], [], []),
+    'updateSale' : IDL.Func(
+        [IDL.Nat, IDL.Vec(SaleLineItem), IDL.Opt(IDL.Text), BuyerInfo],
+        [],
         [],
       ),
   });

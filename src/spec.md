@@ -1,15 +1,14 @@
 # Specification
 
 ## Summary
-**Goal:** Build a store back-office website to record products (inventory) and sales, automatically updating stock levels and providing basic dashboards and history views.
+**Goal:** Add end-to-end sales history support by extending recorded sale data (including buyer info), exposing backend queries to fetch sales, and displaying recent and historical sales in the UI.
 
 **Planned changes:**
-- Implement a single Motoko-actor backend with stable data models and CRUD APIs for products (id, name, optional SKU/description, unit price, optional unit cost, quantity on hand, timestamps).
-- Implement backend APIs to create and query sales (id, timestamp, line items, optional notes) with backend-computed totals.
-- Enforce atomic inventory decrements on sale creation and reject sales that would drive any product quantity negative.
-- Create frontend pages for Dashboard, Inventory management (add/edit/delete, adjust stock, search/filter), Record Sale (build line items, running total, submit), and Sales History (list + detail).
-- Use React Query for all reads/mutations with loading/error states and cache invalidation after mutations.
-- Apply a consistent retail back-office theme (non-blue/purple primary palette).
-- Add and display generated static image assets from `frontend/public/assets/generated`.
+- Extend the backend Sale record to store buyer information and ensure it is persisted when the existing recordSale function is called (while keeping current inventory validation/decrement behavior).
+- Update recordSale to accept buyer info (alongside optional notes) and save it on the Sale record.
+- Add backend query methods to retrieve sales: getAllSales (list) and getSale(id) (single record).
+- Update the Record Sale frontend flow to collect buyer information and submit it when recording a sale, including cache invalidation so views refresh.
+- Replace the Sales History placeholder UI with a working list view (getAllSales) and a details view (getSale) showing date/time, total amount, buyer info, line items, and notes.
+- Add a “Recent Sales” section to the Dashboard showing the latest sales and a link to the full Sales History page.
 
-**User-visible outcome:** Users can manage an inventory catalog, adjust stock, record sales that automatically decrement inventory, view sales history and sale details, and see a dashboard with product counts, low-stock items (with adjustable threshold), and today’s total sales.
+**User-visible outcome:** Users can enter buyer information when recording a sale, view a Recent Sales section on the dashboard, and browse a full sales history list with per-sale details (including buyer info, line items, notes, totals, and timestamps).

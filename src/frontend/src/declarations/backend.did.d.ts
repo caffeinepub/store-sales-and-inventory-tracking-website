@@ -10,10 +10,22 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface BuyerInfo { 'contact' : ContactInfo, 'payment' : PaymentInfo }
+export interface ContactInfo {
+  'name' : string,
+  'email' : [] | [string],
+  'address' : [] | [string],
+  'phone' : [] | [string],
+}
 export interface DashboardSummary {
   'totalProducts' : bigint,
   'todaysSalesAmount' : bigint,
   'lowStockProducts' : Array<Product>,
+}
+export interface PaymentInfo {
+  'paymentStatus' : string,
+  'paymentMethod' : string,
+  'paymentReference' : [] | [string],
 }
 export interface Product {
   'id' : bigint,
@@ -26,20 +38,51 @@ export interface Product {
   'unitPrice' : bigint,
   'unitCost' : [] | [bigint],
 }
+export interface Sale {
+  'id' : bigint,
+  'lineItems' : Array<SaleLineItem>,
+  'createdBy' : string,
+  'totalAmount' : bigint,
+  'notes' : [] | [string],
+  'timestamp' : bigint,
+  'buyerInfo' : BuyerInfo,
+}
 export interface SaleLineItem {
   'unitPriceAtSale' : bigint,
   'productId' : bigint,
   'quantity' : bigint,
 }
+export type UserRole = { 'admin' : null } |
+  { 'user' : null } |
+  { 'guest' : null };
 export interface _SERVICE {
+  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'createProduct' : ActorMethod<
     [string, [] | [string], [] | [string], bigint, [] | [bigint], bigint],
     bigint
   >,
+  'deleteSale' : ActorMethod<[bigint], undefined>,
   'getAllProducts' : ActorMethod<[], Array<Product>>,
+  'getAllSales' : ActorMethod<[], Array<Sale>>,
+  'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getDashboardSummary' : ActorMethod<[], DashboardSummary>,
+  'getLowStockProducts' : ActorMethod<[], Array<Product>>,
+  'getLowStockThreshold' : ActorMethod<[], bigint>,
   'getProduct' : ActorMethod<[bigint], [] | [Product]>,
-  'recordSale' : ActorMethod<[Array<SaleLineItem>, [] | [string]], bigint>,
+  'getProductSales' : ActorMethod<[bigint], Array<Sale>>,
+  'getSale' : ActorMethod<[bigint], [] | [Sale]>,
+  'getTodaysSales' : ActorMethod<[], Array<Sale>>,
+  'isCallerAdmin' : ActorMethod<[], boolean>,
+  'recordSale' : ActorMethod<
+    [Array<SaleLineItem>, [] | [string], BuyerInfo],
+    bigint
+  >,
+  'setLowStockThreshold' : ActorMethod<[bigint], undefined>,
+  'updateSale' : ActorMethod<
+    [bigint, Array<SaleLineItem>, [] | [string], BuyerInfo],
+    undefined
+  >,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

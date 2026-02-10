@@ -12,7 +12,7 @@ import { useRecordSale } from '@/hooks/useSales';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import type { SaleLineItem } from '@/backend';
+import type { SaleLineItem, BuyerInfo } from '@/backend';
 
 interface LineItem {
   productId: string;
@@ -26,6 +26,15 @@ export default function RecordSalePage() {
   const [selectedProductId, setSelectedProductId] = useState<string>('');
   const [quantity, setQuantity] = useState<string>('1');
   const [notes, setNotes] = useState('');
+  
+  // Buyer information
+  const [buyerName, setBuyerName] = useState('');
+  const [buyerEmail, setBuyerEmail] = useState('');
+  const [buyerPhone, setBuyerPhone] = useState('');
+  const [buyerAddress, setBuyerAddress] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('');
+  const [paymentReference, setPaymentReference] = useState('');
+  const [paymentStatus, setPaymentStatus] = useState('Paid');
 
   const { data: products, isLoading: productsLoading } = useProducts();
   const recordSaleMutation = useRecordSale();
@@ -95,20 +104,52 @@ export default function RecordSalePage() {
       return;
     }
 
+    if (!buyerName.trim()) {
+      toast.error('Please enter buyer name');
+      return;
+    }
+
+    if (!paymentMethod.trim()) {
+      toast.error('Please enter payment method');
+      return;
+    }
+
     const saleLineItems: SaleLineItem[] = lineItems.map((item) => ({
       productId: BigInt(item.productId),
       quantity: BigInt(item.quantity),
       unitPriceAtSale: BigInt(item.unitPrice),
     }));
 
+    const buyerInfo: BuyerInfo = {
+      contact: {
+        name: buyerName,
+        email: buyerEmail.trim() || undefined,
+        phone: buyerPhone.trim() || undefined,
+        address: buyerAddress.trim() || undefined,
+      },
+      payment: {
+        paymentMethod,
+        paymentReference: paymentReference.trim() || undefined,
+        paymentStatus,
+      },
+    };
+
     try {
       await recordSaleMutation.mutateAsync({
         lineItems: saleLineItems,
         notes: notes || null,
+        buyerInfo,
       });
       toast.success('Sale recorded successfully!');
       setLineItems([]);
       setNotes('');
+      setBuyerName('');
+      setBuyerEmail('');
+      setBuyerPhone('');
+      setBuyerAddress('');
+      setPaymentMethod('');
+      setPaymentReference('');
+      setPaymentStatus('Paid');
     } catch (error) {
       toast.error('Failed to record sale. Please check inventory and try again.');
     }
@@ -236,48 +277,143 @@ export default function RecordSalePage() {
           </CardContent>
         </Card>
 
-        {/* Summary */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Sale Summary</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Items</span>
-                <span>{lineItems.length}</span>
+        {/* Summary & Buyer Info */}
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Sale Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Items</span>
+                  <span>{lineItems.length}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Total Quantity</span>
+                  <span>{lineItems.reduce((sum, item) => sum + item.quantity, 0)}</span>
+                </div>
+                <div className="border-t pt-2 flex justify-between font-bold text-lg">
+                  <span>Total</span>
+                  <span>${calculateTotal().toFixed(2)}</span>
+                </div>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Total Quantity</span>
-                <span>{lineItems.reduce((sum, item) => sum + item.quantity, 0)}</span>
-              </div>
-              <div className="border-t pt-2 flex justify-between font-bold text-lg">
-                <span>Total</span>
-                <span>${calculateTotal().toFixed(2)}</span>
-              </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="notes">Notes (optional)</Label>
-              <Textarea
-                id="notes"
-                placeholder="Add any notes about this sale..."
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={3}
-              />
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button
-              className="w-full"
-              onClick={handleSubmit}
-              disabled={lineItems.length === 0 || recordSaleMutation.isPending}
-            >
-              {recordSaleMutation.isPending ? 'Recording...' : 'Record Sale'}
-            </Button>
-          </CardFooter>
-        </Card>
+              <div className="space-y-2">
+                <Label htmlFor="notes">Notes (optional)</Label>
+                <Textarea
+                  id="notes"
+                  placeholder="Add any notes about this sale..."
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  rows={3}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Buyer Information</CardTitle>
+              <CardDescription>Customer and payment details</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="buyerName">Customer Name *</Label>
+                <Input
+                  id="buyerName"
+                  placeholder="Enter customer name"
+                  value={buyerName}
+                  onChange={(e) => setBuyerName(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="buyerEmail">Email</Label>
+                <Input
+                  id="buyerEmail"
+                  type="email"
+                  placeholder="customer@example.com"
+                  value={buyerEmail}
+                  onChange={(e) => setBuyerEmail(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="buyerPhone">Phone</Label>
+                <Input
+                  id="buyerPhone"
+                  type="tel"
+                  placeholder="+1 (555) 000-0000"
+                  value={buyerPhone}
+                  onChange={(e) => setBuyerPhone(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="buyerAddress">Address</Label>
+                <Textarea
+                  id="buyerAddress"
+                  placeholder="Enter customer address"
+                  value={buyerAddress}
+                  onChange={(e) => setBuyerAddress(e.target.value)}
+                  rows={2}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="paymentMethod">Payment Method *</Label>
+                <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                  <SelectTrigger id="paymentMethod">
+                    <SelectValue placeholder="Select payment method" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Cash">Cash</SelectItem>
+                    <SelectItem value="Credit Card">Credit Card</SelectItem>
+                    <SelectItem value="Debit Card">Debit Card</SelectItem>
+                    <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
+                    <SelectItem value="Mobile Payment">Mobile Payment</SelectItem>
+                    <SelectItem value="Check">Check</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="paymentReference">Payment Reference</Label>
+                <Input
+                  id="paymentReference"
+                  placeholder="Transaction ID, check number, etc."
+                  value={paymentReference}
+                  onChange={(e) => setPaymentReference(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="paymentStatus">Payment Status</Label>
+                <Select value={paymentStatus} onValueChange={setPaymentStatus}>
+                  <SelectTrigger id="paymentStatus">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Paid">Paid</SelectItem>
+                    <SelectItem value="Pending">Pending</SelectItem>
+                    <SelectItem value="Partial">Partial</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button
+                className="w-full"
+                onClick={handleSubmit}
+                disabled={lineItems.length === 0 || recordSaleMutation.isPending}
+              >
+                {recordSaleMutation.isPending ? 'Recording...' : 'Record Sale'}
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
       </div>
     </div>
   );

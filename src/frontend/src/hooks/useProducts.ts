@@ -20,7 +20,7 @@ export function useProduct(productId: bigint | null) {
   const { actor, isFetching } = useActor();
 
   return useQuery<Product | null>({
-    queryKey: [...QUERY_KEYS.product, productId?.toString()],
+    queryKey: QUERY_KEYS.product(productId?.toString()),
     queryFn: async () => {
       if (!actor || !productId) return null;
       return actor.getProduct(productId);

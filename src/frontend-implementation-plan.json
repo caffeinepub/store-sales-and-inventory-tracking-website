@@ -1,236 +1,79 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Store sales and inventory tracking website (frontend)",
+  "title": "Sales history UI and buyer info capture on sale recording",
   "requirements": [
     {
-      "id": "REQ-5",
-      "summary": "Build Inventory UI for browsing, searching, creating, editing, adjusting stock, and deleting products.",
+      "id": "REQ-3",
+      "summary": "Collect buyer information on Record Sale and submit it with the sale record call, refreshing relevant cached data.",
       "acceptanceCriteria": [
-        "There is a dedicated Inventory view/page showing a table or list of products with quantity on hand.",
-        "Users can add and edit products via forms with basic validation (required name, non-negative numeric fields).",
-        "Users can adjust quantity on hand via an explicit action (e.g., an 'Adjust Stock' dialog) separate from editing metadata.",
-        "Users can delete a product with a confirmation step.",
-        "Inventory list supports client-side search/filter by name and/or SKU."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/InventoryPage.tsx",
-          "operation": "create",
-          "description": "Create the Inventory page with product list/table, client-side search/filter (name/SKU), and actions to add/edit/adjust stock/delete products. Use shadcn-ui components (e.g., Button, Input, Dialog/AlertDialog, Table) to ensure consistent UI; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/inventory/ProductFormDialog.tsx",
-          "operation": "create",
-          "description": "Create an Add/Edit Product dialog with form validation (required name; non-negative numeric fields; optional SKU/description/cost). Use shadcn-ui Dialog + form controls for consistent layout; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/inventory/AdjustStockDialog.tsx",
-          "operation": "create",
-          "description": "Create an explicit Adjust Stock dialog (separate from metadata editing) to change quantity on hand. Use shadcn-ui Dialog and Inputs; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/inventory/DeleteProductConfirm.tsx",
-          "operation": "create",
-          "description": "Create a reusable delete confirmation component for products. Use shadcn-ui AlertDialog for confirmation UX; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/hooks/useProducts.ts",
-          "operation": "create",
-          "description": "Add React Query hooks for product list/detail reads and product mutations needed by the Inventory page (create/update/delete/adjust stock), including cache invalidation."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "create",
-          "description": "Create the app shell with navigation and route wiring to include an Inventory route/page, ensuring the InventoryPage is reachable from the main navigation. Use shadcn-ui layout primitives as appropriate; verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "summary": "Build Record Sale UI to compose line items, show running totals, submit sale, and reflect updated inventory.",
-      "acceptanceCriteria": [
-        "Users can add 1+ line items to a sale by choosing a product and entering quantity.",
-        "The UI shows the computed total (and per-line subtotal) before submitting.",
-        "On submit, the sale is created via backend call and the UI shows success/failure feedback.",
-        "After a successful sale, the inventory view reflects updated quantities (via React Query invalidation/refetch)."
+        "Record Sale page includes an input for buyer information (user-facing label in English).",
+        "Submitting a sale calls the updated backend recordSale API including buyer info.",
+        "On successful sale record, related React Query caches are invalidated so dashboard and sales history refresh appropriately."
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/RecordSalePage.tsx",
-          "operation": "create",
-          "description": "Create the Record Sale page that lets users add/remove line items (product + quantity), shows per-line subtotals and a running total, and submits the sale with notes. Use shadcn-ui components (Select/Combobox if available, Input, Button, Card, Toast/Alert) for consistent UX; verify the component's usage instructions before implementing."
+          "operation": "modify",
+          "description": "Add buyer information inputs (mapped to BuyerInfo: contact + payment) and include buyerInfo in the Record Sale submit payload; use existing shadcn-ui form components (Input/Label/Textarea/Card/etc). Verify the component's usage instructions before implementing."
         },
         {
           "path": "frontend/src/hooks/useSales.ts",
-          "operation": "create",
-          "description": "Add React Query hooks for recording a sale (mutation) and for invalidating/refetching relevant queries (sales list + product list) after successful sale creation."
+          "operation": "modify",
+          "description": "Update useRecordSale mutation to accept buyerInfo and call actor.recordSale(lineItems, notes, buyerInfo); on success invalidate products, dashboard, and sales-related React Query keys so dashboard and sales history refresh. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/lib/queryKeys.ts",
           "operation": "modify",
-          "description": "Wire the Record Sale page into routing and navigation so users can reach it from the app shell."
+          "description": "Ensure sales-related query keys support list + per-sale detail caching patterns (e.g., list under QUERY_KEYS.sales and detail under QUERY_KEYS.sale with an id segment) so invalidation from recordSale refreshes all relevant views."
         }
       ]
     },
     {
-      "id": "REQ-7",
-      "summary": "Build Sales History UI with list and details views, including empty state handling.",
+      "id": "REQ-4",
+      "summary": "Replace Sales History placeholder with a working list and sale details view powered by React Query and the backend sales retrieval methods.",
       "acceptanceCriteria": [
-        "Sales History view lists recorded sales with timestamp and total.",
-        "Clicking a sale shows its full details (line items with quantities and unit prices).",
-        "The UI handles empty state (no sales yet)."
+        "Sales History page no longer shows the placeholder warning about missing backend methods.",
+        "Sales History list displays multiple sales with at least: date/time, total amount, and buyer info.",
+        "Selecting a sale shows a details section/view including line items (product id, quantity, unit price at sale), notes (if any), and buyer info.",
+        "Loading and error states are handled using React Query patterns consistent with the rest of the app."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/SalesHistoryPage.tsx",
-          "operation": "create",
-          "description": "Create Sales History list view (timestamp + total), clickable rows, and empty state when there are no sales. Use shadcn-ui Table/List and empty-state components (Card, Button) for consistent styling; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/SaleDetailsPage.tsx",
-          "operation": "create",
-          "description": "Create a Sale Details view that displays sale metadata, line items (qty + unit price), notes, and computed totals. Use shadcn-ui components (Card, Table) for consistent layout; verify the component's usage instructions before implementing."
-        },
-        {
           "path": "frontend/src/hooks/useSales.ts",
           "operation": "modify",
-          "description": "Extend sales hooks to include React Query reads for sales list and sale details used by Sales History and Sale Details pages."
+          "description": "Add React Query hooks for sales history retrieval (getAllSales list + getSale detail) that depend on useActor and follow the same enabled/isFetching patterns used elsewhere (e.g., useDashboard)."
         },
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/pages/SalesHistoryPage.tsx",
           "operation": "modify",
-          "description": "Wire Sales History and Sale Details routes into the app router and navigation so both views are reachable (including a details route like a parameterized sale id)."
+          "description": "Implement Sales History list UI using getAllSales and a details UI using getSale; include date/time, total amount, buyer info, line items, and notes; add loading (Skeleton) and error (Alert) states consistent with existing pages; use shadcn-ui Card/Table/Badge/etc for layout. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/lib/format.ts",
+          "operation": "create",
+          "description": "Add small formatting helpers for consistent UI display (e.g., currency formatting from bigint cents and timestamp-to-readable date/time) used by Sales History and Dashboard."
         }
       ]
     },
     {
-      "id": "REQ-8",
-      "summary": "Add a Dashboard view summarizing product count, low-stock items with configurable threshold, and today's total sales.",
+      "id": "REQ-5",
+      "summary": "Add a Recent Sales section to the Dashboard showing the most recent sales and linking to the full Sales History route.",
       "acceptanceCriteria": [
-        "Dashboard displays total product count and a list of low-stock items.",
-        "Dashboard displays total sales for today (sum of sale totals recorded today).",
-        "Low-stock threshold can be changed in the UI and affects the displayed list (client-side filtering is acceptable)."
+        "Dashboard page includes a new section/card titled in English (e.g., \"Recent Sales\") showing a list of recent sales (derived from getAllSales).",
+        "Each recent sale entry shows at least date/time, total amount, and buyer info (if present).",
+        "Dashboard provides a clear navigation link/action to the existing /sales-history route."
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/DashboardPage.tsx",
-          "operation": "create",
-          "description": "Create a Dashboard page showing total product count, low-stock list with a user-adjustable threshold (client-side filtering), and today's sales total. Use shadcn-ui components (Card, Input, Badge) for a consistent summary layout; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/hooks/useDashboard.ts",
-          "operation": "create",
-          "description": "Add a React Query hook to load dashboard summary data and expose loading/error states for the Dashboard page."
-        },
-        {
-          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Wire the Dashboard route/page as a primary navigation destination (e.g., first tab/link) in the app shell."
-        }
-      ]
-    },
-    {
-      "id": "REQ-9",
-      "summary": "Standardize all backend interactions via React Query with loading/error UI and proper cache invalidation.",
-      "acceptanceCriteria": [
-        "All list/detail reads use React Query queries.",
-        "All create/update/delete actions use React Query mutations.",
-        "After creating a sale, relevant queries (sales list, product list) are invalidated/refetched.",
-        "UI displays a visible loading indicator while data is fetching and an error message when calls fail."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/lib/queryKeys.ts",
-          "operation": "create",
-          "description": "Define centralized React Query keys for products, product detail, sales, sale detail, and dashboard summary to ensure consistent caching/invalidation across the app."
+          "description": "Add a \"Recent Sales\" card/section that queries getAllSales via the sales hooks, sorts by timestamp (most recent first), shows a small list with date/time + total amount + buyer info, and includes a clear navigation action (TanStack Router Link) to /sales-history; handle loading/error states (Skeleton/Alert) consistent with the dashboard. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/hooks/useProducts.ts",
+          "path": "frontend/src/lib/format.ts",
           "operation": "modify",
-          "description": "Ensure all product reads/mutations are implemented with React Query (queries + mutations), include loading/error state support, and invalidate relevant caches after changes."
-        },
-        {
-          "path": "frontend/src/hooks/useSales.ts",
-          "operation": "modify",
-          "description": "Ensure all sales reads/mutations are implemented with React Query (queries + mutations) and invalidate/refetch product list and sales list after recording a sale."
-        },
-        {
-          "path": "frontend/src/hooks/useDashboard.ts",
-          "operation": "modify",
-          "description": "Ensure dashboard reads use React Query and expose consistent loading/error handling."
-        },
-        {
-          "path": "frontend/src/components/common/QueryState.tsx",
-          "operation": "create",
-          "description": "Create a small reusable component to render visible loading indicators and error messages consistently across pages. Use shadcn-ui Alert/Spinner/Skeleton components if available; verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-10",
-      "summary": "Apply a consistent retail back-office theme (non-blue/purple primary) across all main views.",
-      "acceptanceCriteria": [
-        "All main views (Dashboard, Inventory, Record Sale, Sales History) share consistent layout and styling.",
-        "Primary color palette is not blue/purple.",
-        "Forms, tables/lists, and dialogs use consistent typography and spacing."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/index.css",
-          "operation": "create",
-          "description": "Create global styles and theme tokens (CSS variables) used by Tailwind/shadcn, setting a non-blue/purple primary palette (e.g., warm neutral/green/amber accents) and consistent typography/spacing baselines."
-        },
-        {
-          "path": "frontend/src/components/layout/AppLayout.tsx",
-          "operation": "create",
-          "description": "Create a shared layout wrapper used by all main pages (header, navigation, content container) to enforce consistent spacing and typography. Use shadcn-ui components where appropriate; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Adopt AppLayout across Dashboard, Inventory, Record Sale, and Sales History routes to ensure consistent structure and styling."
-        },
-        {
-          "path": "frontend/tailwind.config.js",
-          "operation": "modify",
-          "description": "Adjust Tailwind theme extensions only as needed to support the chosen non-blue/purple palette and consistent design tokens referenced by the UI."
-        }
-      ]
-    },
-    {
-      "id": "REQ-11",
-      "summary": "Add required generated static images under public assets and display at least one in the UI.",
-      "acceptanceCriteria": [
-        "Generated images exist under frontend/public/assets/generated.",
-        "At least one generated image is displayed in the UI (e.g., header logo and/or empty state illustration).",
-        "No backend routing is used to serve these images (static asset paths only)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/public/assets/generated/store-logo.dim_512x512.png",
-          "operation": "create",
-          "description": "Add the generated static image asset at frontend/public/assets/generated/store-logo.dim_512x512.png so it can be referenced directly by the frontend."
-        },
-        {
-          "path": "frontend/public/assets/generated/paper-texture-bg.dim_1920x1080.png",
-          "operation": "create",
-          "description": "Add the generated static image asset at frontend/public/assets/generated/paper-texture-bg.dim_1920x1080.png so it can be referenced directly by the frontend."
-        },
-        {
-          "path": "frontend/public/assets/generated/empty-inventory-illustration.dim_1200x800.png",
-          "operation": "create",
-          "description": "Add the generated static image asset at frontend/public/assets/generated/empty-inventory-illustration.dim_1200x800.png so it can be referenced directly by the frontend."
-        },
-        {
-          "path": "frontend/src/components/layout/AppLayout.tsx",
-          "operation": "modify",
-          "description": "Display the storefront logo in the app header and optionally apply the background texture for the shell (without adding backend serving). Use standard React image rendering and shadcn-ui header primitives if used; verify the component's usage instructions before implementing. Reference frontend/public/assets/generated/store-logo.dim_512x512.png and frontend/public/assets/generated/paper-texture-bg.dim_1920x1080.png."
-        },
-        {
-          "path": "frontend/src/pages/InventoryPage.tsx",
-          "operation": "modify",
-          "description": "Use the empty state illustration when there are no products, alongside helpful empty-state copy/actions. Use shadcn-ui Card/Button for the empty state styling; verify the component's usage instructions before implementing. Reference frontend/public/assets/generated/empty-inventory-illustration.dim_1200x800.png."
+          "description": "Extend formatting helpers as needed for the Dashboard's Recent Sales display (reuse the same formatting as Sales History for date/time and amounts)."
         }
       ]
     }
