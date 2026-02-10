@@ -1,0 +1,137 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-06T11:44:03.620Z",
+  "summary": "The diff adds a new Motoko backend actor and a React/TanStack Router + React Query frontend with Dashboard/Inventory/Record Sale/Sales History pages and a warm theme. However, several core CRUD and sales-history backend APIs are missing, stable persistence is not implemented, dashboard sales totals are not computed, and multiple frontend actions (edit/delete/adjust stock, sales history) are stubbed with toast/error messages rather than real backend calls.",
+  "missing_requirements": [
+    {
+      "id": "REQ-1",
+      "requirement": "Backend CRUD APIs for products: create, read (single + list), update, delete; deterministic ordering for product list; store/return quantity on hand.",
+      "reason": "Only createProduct, getProduct, and getAllProducts are present. There is no updateProduct or deleteProduct. getAllProducts returns Map.values().toArray() with no ordering guarantee, so deterministic order is not shown.",
+      "evidence": [
+        "backend/main.mo",
+        "frontend/src/components/inventory/ProductFormDialog.tsx",
+        "frontend/src/components/inventory/DeleteProductConfirm.tsx"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "requirement": "Backend APIs to record sales with validation (1+ line items, products exist, quantities positive integers), computed totals, and query methods to list sales and fetch a sale by id.",
+      "reason": "recordSale exists and computes a totalAmount, but there are no getAllSales / getSale query methods. Also, recordSale does not enforce 1+ line items, and quantities can be 0 because Nat allows 0 (no explicit check).",
+      "evidence": [
+        "backend/main.mo",
+        "frontend/src/pages/SalesHistoryPage.tsx"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "requirement": "Inventory updates must be atomic with sale creation; reject sale if it would make any product quantity negative, with no partial updates.",
+      "reason": "The code validates quantities against quantityOnHand before decrementing, but atomicity is not explicitly guaranteed; it performs updates in a separate loop after validation, with no rollback mechanism if an unexpected issue occurred during the decrement loop.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "requirement": "Persist products and sales in stable storage so data survives upgrades; IDs remain unique and continue incrementing after upgrade.",
+      "reason": "products and sales are defined with Map.empty and lastProductId/lastSaleId are non-stable vars. No stable variables or upgrade hooks/migration are shown.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "requirement": "Frontend inventory management UI supports add, edit, adjust quantity via explicit action, delete with confirmation, and browse/search list.",
+      "reason": "Inventory list and search UI exist, and dialogs exist, but edit/update, adjust stock, and delete actions are not wired to backend methods (they show toast errors stating backend methods are required).",
+      "evidence": [
+        "frontend/src/pages/InventoryPage.tsx",
+        "frontend/src/components/inventory/ProductFormDialog.tsx",
+        "frontend/src/components/inventory/AdjustStockDialog.tsx",
+        "frontend/src/components/inventory/DeleteProductConfirm.tsx"
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "requirement": "Frontend sales history UI with list of sales (timestamp/total) and detail view (line items and notes) including empty state handling.",
+      "reason": "SalesHistoryPage is a placeholder that explicitly states required backend methods are missing and does not implement list/detail views using real data.",
+      "evidence": [
+        "frontend/src/pages/SalesHistoryPage.tsx"
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "requirement": "Dashboard shows total products, low-stock items at/below configurable threshold, and total sales for today (local day).",
+      "reason": "Dashboard UI includes threshold input and displays totals, but backend getDashboardSummary hardcodes todaysSalesAmount to 0 and does not compute sales for today.",
+      "evidence": [
+        "backend/main.mo",
+        "frontend/src/pages/DashboardPage.tsx"
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "requirement": "Use React Query for all backend interactions for products and sales, including list/detail reads, mutations, loading/error states, and invalidation after mutations (including after creating a sale: invalidate/refetch sales list and product list).",
+      "reason": "React Query is used for products and dashboard and recordSale mutation, but there are no React Query queries/mutations for sales list/detail (since backend methods are missing). Also, after recordSale it invalidates products and dashboard but not a sales list query.",
+      "evidence": [
+        "frontend/src/hooks/useProducts.ts",
+        "frontend/src/hooks/useDashboard.ts",
+        "frontend/src/hooks/useSales.ts",
+        "frontend/src/pages/SalesHistoryPage.tsx",
+        "frontend/src/lib/queryKeys.ts"
+      ]
+    },
+    {
+      "id": "REQ-11",
+      "requirement": "Add generated static image assets under frontend/public/assets/generated and display at least one in the UI via static paths.",
+      "reason": "The UI references /assets/generated/store-logo.dim_512x512.png, but the diff summary does not show the image files being added under frontend/public/assets/generated (omitted files are noted, so existence cannot be confirmed from provided evidence).",
+      "evidence": [
+        "frontend/src/components/layout/AppLayout.tsx"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Internet Identity authentication integration and actor recreation/invalidation logic.",
+      "reason": "The BuildRequest did not ask to add authentication flows; it only stated non-goals around third-party auth beyond platform defaults. The diff adds an InternetIdentityProvider and related hooks.",
+      "evidence": [
+        "frontend/src/hooks/useInternetIdentity.ts",
+        "frontend/src/hooks/useActor.ts",
+        "frontend/src/main.tsx"
+      ]
+    },
+    {
+      "description": "Use of next-themes ThemeProvider for dark/light mode theming.",
+      "reason": "The BuildRequest asked for a coherent theme and palette constraints but did not explicitly request theme switching via next-themes.",
+      "evidence": [
+        "frontend/src/App.tsx"
+      ]
+    }
+  ],
+  "confidence": 0.76,
+  "changed_files": [
+    "all_files_summary.json",
+    "backend/main.mo",
+    "frontend-file-summaries.txt",
+    "frontend/index.css",
+    "frontend/index.html",
+    "frontend/src/App.tsx",
+    "frontend/src/components/inventory/AdjustStockDialog.tsx",
+    "frontend/src/components/inventory/DeleteProductConfirm.tsx",
+    "frontend/src/components/inventory/ProductFormDialog.tsx",
+    "frontend/src/components/layout/AppLayout.tsx",
+    "frontend/src/hooks/useActor.ts",
+    "frontend/src/hooks/useDashboard.ts",
+    "frontend/src/hooks/useInternetIdentity.ts",
+    "frontend/src/hooks/useProducts.ts",
+    "frontend/src/hooks/useSales.ts",
+    "frontend/src/index.css",
+    "frontend/src/lib/queryKeys.ts",
+    "frontend/src/lib/utils.ts",
+    "frontend/src/main.tsx",
+    "frontend/src/pages/DashboardPage.tsx",
+    "frontend/src/pages/InventoryPage.tsx",
+    "frontend/src/pages/RecordSalePage.tsx",
+    "frontend/src/pages/SalesHistoryPage.tsx",
+    "frontend/tailwind.config.js",
+    "project_state.json"
+  ]
+}

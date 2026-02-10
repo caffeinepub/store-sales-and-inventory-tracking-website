@@ -1,0 +1,149 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-create-a-frontend-inventory-management-ui-that-lets-users-add-a-product-edit-product-details-adjust-quantity-on-hand-delete-a-product-and-browse-search-the-product-list",
+      "featureTitle": "Create a frontend inventory management UI that lets users: add a product, edit product details, adjust quantity on hand, delete a product, and browse/search the product list.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/inventory/AdjustStockDialog.tsx",
+        "frontend/src/components/inventory/DeleteProductConfirm.tsx",
+        "frontend/src/components/inventory/ProductFormDialog.tsx",
+        "frontend/src/hooks/useProducts.ts",
+        "frontend/src/pages/InventoryPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-create-a-frontend-sales-recording-ui-that-lets-users-build-a-sale-by-selecting-products-and-quantities-shows-a-running-total-and-submits-the-sale-to-the-backend",
+      "featureTitle": "Create a frontend sales recording UI that lets users build a sale by selecting products and quantities, shows a running total, and submits the sale to the backend.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/hooks/useSales.ts",
+        "frontend/src/pages/RecordSalePage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-create-a-frontend-sales-history-ui-to-view-past-sales-including-a-list-with-date-total-and-a-details-view-showing-line-items-and-notes",
+      "featureTitle": "Create a frontend sales history UI to view past sales, including a list with date/total and a details view showing line items and notes.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/hooks/useSales.ts",
+        "frontend/src/pages/SalesHistoryPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-7"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-simple-dashboard-home-view-summarizing-key-metrics-total-number-of-products-low-stock-products-quantity-at-or-below-a-configurable-threshold-and-total-sales-for-today-based-on-local-day",
+      "featureTitle": "Add a simple dashboard/home view summarizing key metrics: total number of products, low-stock products (quantity at or below a configurable threshold), and total sales for today (based on local day).",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/hooks/useDashboard.ts",
+        "frontend/src/pages/DashboardPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-8"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-use-react-query-for-all-backend-interactions-products-and-sales-including-loading-states-error-states-and-cache-invalidation-after-mutations",
+      "featureTitle": "Use React Query for all backend interactions (products and sales), including loading states, error states, and cache invalidation after mutations.",
+      "files": [
+        "frontend/src/hooks/useDashboard.ts",
+        "frontend/src/hooks/useProducts.ts",
+        "frontend/src/hooks/useSales.ts",
+        "frontend/src/lib/queryKeys.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-9"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-apply-a-coherent-consistent-visual-theme-for-the-app-ui-colors-typography-spacing-and-component-styling-suitable-for-a-small-retail-back-office-tool-avoiding-blue-purple-as-the-primary-palette",
+      "featureTitle": "Apply a coherent, consistent visual theme for the app UI (colors, typography, spacing, and component styling) suitable for a small retail back-office tool, avoiding blue/purple as the primary palette.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/layout/AppLayout.tsx",
+        "frontend/src/index.css",
+        "frontend/tailwind.config.js"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-10"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-generated-static-image-assets-to-the-frontend-and-use-them-in-the-ui-e-g-app-header-empty-states-by-placing-them-under-frontend-public-assets-generated-and-referencing-them-directly-from-the-frontend",
+      "featureTitle": "Add generated static image assets to the frontend and use them in the UI (e.g., app header/empty states) by placing them under frontend/public/assets/generated and referencing them directly from the frontend.",
+      "files": [
+        "frontend/src/components/layout/AppLayout.tsx",
+        "frontend/src/pages/InventoryPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-11"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

@@ -1,0 +1,238 @@
+{
+  "kind": "build_request",
+  "title": "Store sales and inventory tracking website",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Implement backend data models and CRUD APIs to manage products (inventory items) including: unique product id, name, optional SKU, optional description, unit price, optional unit cost, current quantity on hand, and created/updated timestamps.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "Creat a website in which we can record our store sale and inventory"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Backend exposes update + query methods to create, read (single + list), update, and delete products.",
+        "Product list can be returned in a deterministic order (e.g., by id or name).",
+        "Quantity on hand is stored and returned for each product."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Implement backend APIs to record sales transactions. Each sale must include: unique sale id, timestamp, line items (product id, quantity, unit price at time of sale), optional notes, and computed totals.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "record our store sale"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Backend exposes an update method to create a sale with 1+ line items.",
+        "Sale creation validates that referenced products exist and quantities are positive integers.",
+        "Sale totals are computed and returned by the backend (not only the frontend).",
+        "Backend exposes query methods to list sales and fetch a single sale by id."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Update inventory quantities when a sale is recorded by decrementing quantity on hand for each sold product, and prevent recording a sale when it would make any product quantity negative.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "record our store sale and inventory"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Recording a sale decreases quantity on hand for each product line item.",
+        "If any line item quantity exceeds quantity on hand, the sale is rejected and no inventory is changed.",
+        "Inventory updates are atomic with sale creation (no partial updates)."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Persist products and sales in stable storage in the single Motoko actor so data remains after canister upgrades.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "record our store sale and inventory"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Products and sales data are stored in stable variables (or migrated to stable structures) and survive a canister upgrade.",
+        "IDs are unique and continue incrementing correctly after upgrade."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Create a frontend inventory management UI that lets users: add a product, edit product details, adjust quantity on hand, delete a product, and browse/search the product list.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "record our store sale and inventory"
+        ]
+      },
+      "acceptanceCriteria": [
+        "There is a dedicated Inventory view/page showing a table or list of products with quantity on hand.",
+        "Users can add and edit products via forms with basic validation (required name, non-negative numeric fields).",
+        "Users can adjust quantity on hand via an explicit action (e.g., an 'Adjust Stock' dialog) separate from editing metadata.",
+        "Users can delete a product with a confirmation step.",
+        "Inventory list supports client-side search/filter by name and/or SKU."
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Create a frontend sales recording UI that lets users build a sale by selecting products and quantities, shows a running total, and submits the sale to the backend.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "record our store sale"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Users can add 1+ line items to a sale by choosing a product and entering quantity.",
+        "The UI shows the computed total (and per-line subtotal) before submitting.",
+        "On submit, the sale is created via backend call and the UI shows success/failure feedback.",
+        "After a successful sale, the inventory view reflects updated quantities (via React Query invalidation/refetch)."
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "text": "Create a frontend sales history UI to view past sales, including a list with date/total and a details view showing line items and notes.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "record our store sale"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Sales History view lists recorded sales with timestamp and total.",
+        "Clicking a sale shows its full details (line items with quantities and unit prices).",
+        "The UI handles empty state (no sales yet)."
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "text": "Add a simple dashboard/home view summarizing key metrics: total number of products, low-stock products (quantity at or below a configurable threshold), and total sales for today (based on local day).",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "record our store sale and inventory"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Dashboard displays total product count and a list of low-stock items.",
+        "Dashboard displays total sales for today (sum of sale totals recorded today).",
+        "Low-stock threshold can be changed in the UI and affects the displayed list (client-side filtering is acceptable)."
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "text": "Use React Query for all backend interactions (products and sales), including loading states, error states, and cache invalidation after mutations.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "Creat a website in which we can record our store sale and inventory"
+        ]
+      },
+      "acceptanceCriteria": [
+        "All list/detail reads use React Query queries.",
+        "All create/update/delete actions use React Query mutations.",
+        "After creating a sale, relevant queries (sales list, product list) are invalidated/refetched.",
+        "UI displays a visible loading indicator while data is fetching and an error message when calls fail."
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "text": "Apply a coherent, consistent visual theme for the app UI (colors, typography, spacing, and component styling) suitable for a small retail back-office tool, avoiding blue/purple as the primary palette.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "Creat a website in which we can record our store sale and inventory"
+        ]
+      },
+      "acceptanceCriteria": [
+        "All main views (Dashboard, Inventory, Record Sale, Sales History) share consistent layout and styling.",
+        "Primary color palette is not blue/purple.",
+        "Forms, tables/lists, and dialogs use consistent typography and spacing."
+      ]
+    },
+    {
+      "id": "REQ-11",
+      "text": "Add generated static image assets to the frontend and use them in the UI (e.g., app header/empty states) by placing them under frontend/public/assets/generated and referencing them directly from the frontend.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "Creat a website in which we can record our store sale and inventory"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Generated images exist under frontend/public/assets/generated.",
+        "At least one generated image is displayed in the UI (e.g., header logo and/or empty state illustration).",
+        "No backend routing is used to serve these images (static asset paths only)."
+      ]
+    }
+  ],
+  "constraints": [
+    "Backend must remain a single Motoko actor in backend/main.mo.",
+    "Do not modify files under frontend/src/components/ui or other frontend immutablePaths; compose these components instead.",
+    "Use English for any user-facing text."
+  ],
+  "nonGoals": [
+    "Barcode scanning or camera-based item entry.",
+    "Integration with external POS/payment providers.",
+    "Multi-user roles/permissions, employee accounts, or third-party authentication beyond platform defaults.",
+    "Advanced accounting (tax rules, invoices, profit/loss reports) unless explicitly requested later."
+  ],
+  "imageRequirements": {
+    "required": [
+      "Minimal storefront logo mark, flat vector style, transparent background (store-logo.dim_512x512.png)",
+      "Soft neutral abstract background pattern, subtle grain, warm gray/beige palette (paper-texture-bg.dim_1920x1080.png)",
+      "Empty state illustration of shelves/boxes, simple line art, warm monochrome palette (empty-inventory-illustration.dim_1200x800.png)"
+    ],
+    "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
+  }
+}

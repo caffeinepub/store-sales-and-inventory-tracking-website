@@ -1,0 +1,18 @@
+{
+  "frontend/src/App.tsx": "Main application component with TanStack Router setup, defining routes for Dashboard, Inventory, Record Sale, and Sales History pages with ThemeProvider and Toaster.",
+  "frontend/src/components/layout/AppLayout.tsx": "Shared layout component with header (logo and navigation), mobile navigation, main content area, and footer with caffeine.ai attribution.",
+  "frontend/src/pages/DashboardPage.tsx": "Dashboard page displaying total products, low stock items with adjustable threshold, and today's sales summary using cards and React Query.",
+  "frontend/src/pages/InventoryPage.tsx": "Inventory management page with product table, search/filter functionality, and actions to add/edit/adjust stock/delete products using dialogs.",
+  "frontend/src/pages/RecordSalePage.tsx": "Sales recording page with product selection, line item management, running totals, and sale submission with notes.",
+  "frontend/src/pages/SalesHistoryPage.tsx": "Sales history placeholder page with alert indicating missing backend methods (getAllSales, getSale).",
+  "frontend/src/components/inventory/ProductFormDialog.tsx": "Dialog component for creating new products with form validation (edit functionality notes missing backend method).",
+  "frontend/src/components/inventory/AdjustStockDialog.tsx": "Dialog for adjusting product stock quantities with add/subtract/set options (notes missing backend method).",
+  "frontend/src/components/inventory/DeleteProductConfirm.tsx": "Alert dialog for confirming product deletion (notes missing backend method).",
+  "frontend/src/hooks/useProducts.ts": "React Query hooks for fetching products list/detail and creating products with cache invalidation.",
+  "frontend/src/hooks/useSales.ts": "React Query mutation hook for recording sales with automatic product and dashboard cache invalidation.",
+  "frontend/src/hooks/useDashboard.ts": "React Query hook for fetching dashboard summary data.",
+  "frontend/src/lib/queryKeys.ts": "Centralized React Query cache keys for products, sales, and dashboard queries.",
+  "frontend/src/lib/utils.ts": "Utility function for merging Tailwind CSS classes using clsx and tailwind-merge.",
+  "frontend/src/index.css": "Global styles with warm amber/brown OKLCH color palette for light and dark modes, avoiding blue/purple tones.",
+  "frontend/tailwind.config.js": "Tailwind configuration with extended color tokens, Inter font family, and custom design system settings."
+}
